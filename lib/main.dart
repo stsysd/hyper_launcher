@@ -1,36 +1,67 @@
-import 'package:bot_toast/bot_toast.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
-import 'package:hyper_launcher/pages/home.dart';
+import 'package:process_run/shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await hotKeyManager.unregisterAll();
-
-  runApp(const MyApp());
+  await registerHotKeys();
+  runApp(const MainApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primaryColor: const Color(0xff416ff4),
-        canvasColor: Colors.white,
-        scaffoldBackgroundColor: const Color(0xffF7F9FB),
-        dividerColor: Colors.grey.withOpacity(0.3),
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text('Hello World!'),
+        ),
       ),
-      builder: BotToastInit(),
-      navigatorObservers: [BotToastNavigatorObserver()],
-      home: const HomePage(),
     );
   }
+}
+
+Future<void> registerHotKeys() async {
+  // for hot reload
+  await hotKeyManager.unregisterAll();
+
+  await hotKeyManager.register(
+    HotKey(
+      key: PhysicalKeyboardKey.keyZ,
+      modifiers: [
+        HotKeyModifier.control,
+        HotKeyModifier.shift,
+        HotKeyModifier.alt,
+      ],
+    ),
+    keyUpHandler: (hotkey) async {
+      var shell = Shell();
+      await shell
+          .run('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe');
+    },
+  );
+
+  await hotKeyManager.register(
+    HotKey(
+      key: PhysicalKeyboardKey.keyX,
+      modifiers: [
+        HotKeyModifier.control,
+        HotKeyModifier.shift,
+        HotKeyModifier.alt,
+      ],
+    ),
+    keyUpHandler: (hotkey) {
+      logToFile('invoke hot key: HYPR(X)');
+    },
+  );
+}
+
+void logToFile(String msg) {
+  final file = File('debug.txt');
+  file.writeAsStringSync('$msg\n', mode: FileMode.append);
 }
