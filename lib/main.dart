@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
-import 'package:process_run/shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,10 +38,9 @@ Future<void> registerHotKeys() async {
         HotKeyModifier.alt,
       ],
     ),
-    keyUpHandler: (hotkey) async {
-      var shell = Shell();
-      await shell
-          .run('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe');
+    keyDownHandler: (hotkey) async {
+      await Process.run(
+          '"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"', []);
     },
   );
 
@@ -55,13 +53,25 @@ Future<void> registerHotKeys() async {
         HotKeyModifier.alt,
       ],
     ),
-    keyUpHandler: (hotkey) {
-      logToFile('invoke hot key: HYPR(X)');
+    keyDownHandler: (hotkey) async {
+      await Process.run(
+        'cmd.exe',
+          ['/c', '"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"']);
+    },
+  );
+
+  await hotKeyManager.register(
+    HotKey(
+      key: PhysicalKeyboardKey.keyG,
+      modifiers: [
+        HotKeyModifier.control,
+        HotKeyModifier.shift,
+        HotKeyModifier.alt,
+      ],
+    ),
+    keyDownHandler: (hotkey) {
+      Process.run('cmd.exe', ['/c', 'start', 'https://google.com']);
     },
   );
 }
 
-void logToFile(String msg) {
-  final file = File('debug.txt');
-  file.writeAsStringSync('$msg\n', mode: FileMode.append);
-}
