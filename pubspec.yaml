@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  hotkey_manager: ^0.2.3
+  process_run: ^1.2.0+3
 
 dev_dependencies:
   flutter_test:
