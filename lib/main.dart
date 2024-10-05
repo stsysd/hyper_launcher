@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -5,10 +7,7 @@ import 'package:process_run/shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // for hot reload
-  await hotKeyManager.unregisterAll();
-
+  await registerHotKeys();
   runApp(const MainApp());
 }
 
@@ -27,20 +26,42 @@ class MainApp extends StatelessWidget {
   }
 }
 
-void registerHotKeys() async {
+Future<void> registerHotKeys() async {
+  // for hot reload
+  await hotKeyManager.unregisterAll();
+
   await hotKeyManager.register(
     HotKey(
-      key: PhysicalKeyboardKey.f24,
+      key: PhysicalKeyboardKey.keyZ,
       modifiers: [
         HotKeyModifier.control,
         HotKeyModifier.shift,
         HotKeyModifier.alt,
-        HotKeyModifier.meta,
       ],
     ),
     keyUpHandler: (hotkey) async {
       var shell = Shell();
-      await shell.run('chrome.exe');
+      await shell
+          .run('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe');
     },
   );
+
+  await hotKeyManager.register(
+    HotKey(
+      key: PhysicalKeyboardKey.keyX,
+      modifiers: [
+        HotKeyModifier.control,
+        HotKeyModifier.shift,
+        HotKeyModifier.alt,
+      ],
+    ),
+    keyUpHandler: (hotkey) {
+      logToFile('invoke hot key: HYPR(X)');
+    },
+  );
+}
+
+void logToFile(String msg) {
+  final file = File('debug.txt');
+  file.writeAsStringSync('$msg\n', mode: FileMode.append);
 }
